@@ -1,0 +1,20 @@
+﻿# secrets
+.env
+.env.*
+*.pem
+*.key
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# node
+node_modules/
+dist/
+.next/
+out/
+
+# logs
+*.log
