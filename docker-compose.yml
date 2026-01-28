@@ -1,0 +1,41 @@
+﻿services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: third_eye
+      POSTGRES_PASSWORD: third_eye_password
+      POSTGRES_DB: third_eye
+    ports: ["5432:5432"]
+    volumes: ["dbdata:/var/lib/postgresql/data"]
+
+  api:
+    build: ./apps/api
+    environment:
+      DATABASE_URL: postgresql+psycopg2://third_eye:third_eye_password@db:5432/third_eye
+      JWT_SECRET: dev_secret_change_me
+      API_BASE_URL: http://localhost:8001
+      AZURE_BLOB_ACCOUNT_URL: ""
+      AZURE_BLOB_CONTAINER: "camera-frames"
+      AZURE_BLOB_SAS: ""
+      TWILIO_ACCOUNT_SID: ""
+      TWILIO_AUTH_TOKEN: ""
+      TWILIO_FROM_NUMBER: ""
+    ports: ["8001:8001"]
+    depends_on: [db]
+
+  worker:
+    build: ./apps/worker
+    environment:
+      API_BASE_URL: http://api:8001
+      WORKER_POLL_SECONDS: "10"
+    depends_on: [api]
+
+  web:
+    build: ./apps/web
+    environment:
+      NEXT_PUBLIC_API_BASE: http://localhost:8001
+    ports: ["3000:3000"]
+    depends_on: [api]
+
+volumes:
+  dbdata:
